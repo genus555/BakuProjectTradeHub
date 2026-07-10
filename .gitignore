@@ -2,10 +2,14 @@ bptradehub/__pycache__
 tradehub/__pycache__
 tradehub/models/__pycache__
 tradehub/migrations/__pycache__
-store/views/__pycache__
+tradehub/management/__pycache__
+tradehub/management/commands/__pycache__
+tradehub/views/__pycache__
 TODO
 go_logger/go_all_logs.txt
 go_logger/warning_logs.txt
 db.sqlite3
 /attributes
 /bakugans
+old_categories.json
+old_products.json

@@ -105,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Los_Angeles'
 
 USE_I18N = True
 
@@ -129,7 +129,7 @@ LOGGING = {
     'handlers': {
         'go_logger': {
             'level': 'DEBUG',
-            'class': 'store.views.logger.GoLoggingHandler',
+            'class': 'tradehub.views.logger.GoLoggingHandler',
             'formatter': 'verbose',
         },
         'console': {

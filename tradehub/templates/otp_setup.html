@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Scan the QR code below with the Google Authenticator App and enter the 6 digit code to register.</h2>
+    <p>Please note that this code will constantly change and will act as your password.</p>
+    <img src="data:image/png;base64,{{ qr_b64 }}" alt="Scan with Google Authenticator">
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="otp_code" placeholder="Enter 6-digit code">
+        <button type="submit">Confirm</button>
+    </form>
+{% endblock %}
