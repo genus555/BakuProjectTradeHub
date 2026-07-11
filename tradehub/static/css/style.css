@@ -88,7 +88,7 @@ nav a:hover {
 
 .inv-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap: 30px;
     padding: 20px;
 }
@@ -159,7 +159,26 @@ nav a:hover {
     padding: 15px;
 }
 
-.bakugan-img, .regular-text {
+.create-img, .regular-text {
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+
+
+.owned-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+    width: fit-content;
+    min-height: 100vh;
+    margin: 0 auto;
+}
+
+.owned-img, .owned-text {
     padding: 0;
     margin-top: 0;
     margin-bottom: 10px;
@@ -199,6 +218,24 @@ nav a:hover {
 
 .search-btn:hover {
     background: #03567c;
+}
+
+
+
+.edit-btn {
+    display: inline-block;
+    padding: 8pb 16px;
+    border: 2px solid rgb(0, 0, 0, 0.6);
+    background: rgb(172, 169, 169);
+    color: black;
+    text-decoration: none;
+    border-radius: 4px;
+
+    width: 100px;
+}
+
+.edit-btn:hover {
+    background: #04567c;
 }
 
 

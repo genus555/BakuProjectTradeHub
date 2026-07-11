@@ -41,4 +41,8 @@ class Home(View):
         data['owned_bakugans'] = user_bakugans
         data['attributes'] = Attribute.get_all_attributes()
 
+        print(type(user_bakugans))
+        print(type(user_bakugans[0]))
+        print(user_bakugans[0].__dict__)
+
         return render(request, 'home.html', data)

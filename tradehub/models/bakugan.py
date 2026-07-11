@@ -41,6 +41,16 @@ class OwnedBakugan(models.Model):
     def create(self):
         self.save()
 
+    def edit(self, data):
+        try:
+            for field, value in data.items():
+                if hasattr(self, field):
+                    setattr(self, field, value)
+            self.save()
+            return True
+        except Exception:
+            return False
+
     @staticmethod
     def get_owned_bakugans_by_attribute(attribute):
         return OwnedBakugan.objects.filter(bakugan__attribute=attribute)

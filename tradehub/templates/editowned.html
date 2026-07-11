@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="owned-container">
+    <h3 class="owned-text">{{ bakugan.attribute }} {{ bakugan.name }}</h3>
+    <img class="owned-img" src="{{ bakugan.image.url }}" alt="{{ bakugan.name }}">
+    <form action="{% url 'editowned' ownedbakugan.id %}" method="POST">
+        {% csrf_token %}
+            <input type="hidden" name="ownedbakugan" value="{{ ownedbakugan }}">
+            <input type="number" name="power" min="260" max="760" step="10" value="{{ power }}">
+            <select name="trade_type">
+                <option value="{{ trade_type }}" disabled selected>{{ trade_type }}</option>
+                <option value="selling">Sell</option>
+                <option value="trading">Trade</option>
+                <option value="both">Both</option>
+            </select>
+            <div class="price-container" style="display:none;">
+                <input class="price-input" type="number" name="price" min="0" max="1000000" value="{{ price }}">
+            </div>
+            <button type="submit">Edit Bakugan</button>
+            <input type="hidden" name="action" value="remove">
+            <button type="submit" onclick="return confirm('Are you sure you want to delete this Bakugan?');">Remove</button>
+    </form>
+    {% if edited != None %}
+        {% if not edited %}
+            <h4>Failed to edit</h4>
+        {% endif %}
+    {% endif %}
+</div>
+<script src="{% static 'js/price.js' %}"></script>
+{% endblock %}

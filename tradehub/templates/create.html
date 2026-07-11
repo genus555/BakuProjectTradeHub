@@ -13,7 +13,7 @@
             {% for bakugan in bakugans %}
             <div class="create-card" id="bakugan-{{ bakugan.id }}">
                 <h3 class="regular-text">{{ bakugan.name }}</h3>
-                <img class="bakugan-img" src="{{ bakugan.image.url }}" alt="{{ bakugan.name }}" style="width: 200px;">
+                <img class="create-img" src="{{ bakugan.image.url }}" alt="{{ bakugan.name }}" style="width: 200px;">
                 <form action="{% url 'create' %}?return_url={% url 'create' %}%3Fsearch={{ request.GET.search|default:'' }}%26attribute={{ request.GET.attribute|default:'' }}%23bakugan-{{ bakugan.id }}" method="POST">
                     {% csrf_token %}
                         <input type="hidden" name="bakugan" value="{{ bakugan.id }}">

@@ -23,6 +23,7 @@
                             {% if ob.trade_type == 'selling' or ob.trade_type == 'both' %}
                             <h3 class="inv-text">{{ ob.price }} HSP</h3>
                             {% endif %}
+                            <a href="{% url 'editowned' ob.id %}" class="edit-btn">Edit</a>
                         </div>
                     {% endif %}
                 {% endfor %}
