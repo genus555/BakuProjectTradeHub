@@ -2,10 +2,32 @@
 
 {% block content %}
 <div>
-    <h1>BakuProject Trade Hub</h1>
     {% if not request.session.user %}
+    <h1>BakuProject Trade Hub</h1>
     <p>Please login or signup to get started. In order to use the website you will need the Google Authenticator app.</p>
     {% else %}
-    <p>WIP show user's offers here</p>
+    <div class="inv-container">
+        {% include 'sidebar.html' with path='home' %}
+        <div class="inventory">
+            <h1 class="inv-name">{{ user.ign }}'s Inventory</h1>
+            {% include 'searchbar.html' with path='home' %}
+            
+            <div class="inv-grid">
+                {% for ob in owned_bakugans %}
+                    {% if not ob.is_offered %}
+                        <div class="inv-card" id="ob.bakugan-{{ ob.bakugan__id }}">
+                            <h3 class="inv-text">{{ ob.bakugan.attribute }} {{ ob.bakugan.name }}</h3>
+                            <img class="inv-img" src="{{ ob.bakugan.image.url }}" alt="{{ ob.bakugan.name  }}">
+                            <h3 class="inv-text">G: {{ ob.power }}</h3>
+                            <h3 class="inv-text">{{ ob.trade_type }}</h3>
+                            {% if ob.trade_type == 'selling' or ob.trade_type == 'both' %}
+                            <h3 class="inv-text">{{ ob.price }} HSP</h3>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
     {% endif %}
 {% endblock %}

@@ -21,6 +21,13 @@ class User(models.Model):
             return User.objects.get(discord_name=discord_name)
         except User.DoesNotExist:
             return False
+        
+    @staticmethod
+    def get_user_by_id(id):
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            return False
     
     def isExists(self):
         return User.objects.filter(ign=self.ign).exists()

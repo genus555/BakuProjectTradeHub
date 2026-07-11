@@ -68,3 +68,196 @@ nav a {
 nav a:hover {
     text-decoration: underline;
 }
+
+
+
+.inv {
+    flex: 1;
+    min-width: 0;
+}
+
+.inv-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.inv-name {
+    margin: 10px;
+}
+
+.inv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 20px;
+}
+
+.inv-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 150px;
+    padding: 20px;
+
+    border: 2px solid rgb(51, 2, 51);
+    border-radius: 12px;
+
+    background-color: gray;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+
+    text-align: center;
+}
+
+.inv-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    transition: 0.2s ease;
+}
+
+.inv-img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+
+    border-radius: 8px;
+    background-color: #777;
+    padding: 5px;
+
+}
+
+.inv-text {
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+
+
+.create {
+    flex: 1;
+    min-width: 0;
+}
+
+.create-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.create-name {
+    margin: 10px;
+}
+
+.create-grid {
+    margin: 10px;
+}
+
+.create-card {
+    padding: 15px;
+}
+
+.bakugan-img, .regular-text {
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+
+
+.search-container {
+    margin: 10px;
+    display: flex;
+}
+
+.search-form {
+    display: flex;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-input {
+    flex-grow: 1;
+    font-size: 12px;
+    border: 2px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #9c4848
+}
+
+.search-btn {
+    font-size: 12px;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    background: #03567c;
+}
+
+
+
+.sidebar {
+    width: fit-content;
+    min-width: 180px;
+    padding: 15px;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 55px;
+    height: calc(100vh - 49px);
+    overflow-y: auto;
+
+    background-color: goldenrod;
+}
+
+.attribute-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.attribute-list li {
+    margin-bottom: 12px;
+}
+
+.attribute-name {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.attribute-name:hover {
+    color: aqua;
+    transform: translateX(5px);
+}
+
+.attribute-item {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    transition: transform 0.2s;
+}
+
+.attribute-item:hover {
+    color: aqua;
+    transform: translateX(5px)
+}
+
+.attribute-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    margin-right: 10px;
+}

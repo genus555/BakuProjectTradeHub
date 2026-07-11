@@ -1,0 +1,9 @@
+<div class="search-container">
+    <form action="{% url path %}" method="GET" class="search-form">
+        {% if request.GET.attribute %}
+            <input type="hidden" name="attribute" value="{{ request.GET.attribute }}">
+        {% endif %}
+        <input type="text" name="search" class="search-input" placeholder="Search Bakugans" value="{{ request.GET.search|default:'' }}">
+        <button type="submit" class="search-btn">Search</button>
+    </form>
+</div>

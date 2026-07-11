@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from .attribute import Attribute
 from .user import User
@@ -8,8 +9,8 @@ class Bakugan(models.Model):
     image = models.ImageField(upload_to='uploads/bakugans/')
 
     @staticmethod
-    def get_bakugan_by_id(ids):
-        return Bakugan.objects.filter(id__in=ids)
+    def get_bakugan_by_id(id):
+        return Bakugan.objects.get(id=id)
     
     @staticmethod
     def get_all_bakugan():
@@ -32,13 +33,32 @@ class Bakugan(models.Model):
 class OwnedBakugan(models.Model):
     bakugan = models.ForeignKey(Bakugan, on_delete=models.CASCADE)
     power = models.IntegerField(default=320)
+    price = models.IntegerField(default=0)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="inventory")
     trade_type = models.CharField(max_length=10, choices=[("trading", "Trading"), ("selling", "Selling"), ("both", "Both")])
     is_offered = models.BooleanField(default=False)
 
+    def create(self):
+        self.save()
+
     @staticmethod
-    def get_owned_bakugan_by_id(ids):
-        return OwnedBakugan.objects.filter(id__in=ids)
+    def get_owned_bakugans_by_attribute(attribute):
+        return OwnedBakugan.objects.filter(bakugan__attribute=attribute)
+    
+    @staticmethod
+    def get_owned_bakugans_by_power(power):
+        return OwnedBakugan.objects.filter(power__gte=power)
+    
+    @staticmethod
+    def get_owned_bakugans_by_search(query):
+        return OwnedBakugan.objects.filter(bakugan__name=query)
+    @staticmethod
+    def get_owned_bakugan_by_id(id):
+        return OwnedBakugan.objects.get(id=id)
+    
+    @staticmethod
+    def get_owned_bakugans_by_owner(owner_id):
+        return OwnedBakugan.objects.filter(owner=owner_id)
     
     @staticmethod
     def get_all_owned_bakugan():

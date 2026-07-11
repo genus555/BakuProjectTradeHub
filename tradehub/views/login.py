@@ -11,7 +11,7 @@ class Login(View):
         return render(request, 'login.html')
     
     def post(self, request):
-        discord_name = request.POST.get('discord_name')
+        discord_name = request.POST.get('discord_name').lower()
         otp_code = request.POST.get('otp_code')
         user = User.get_user_by_discord_name(discord_name)
         error_message = None

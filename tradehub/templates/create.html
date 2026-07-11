@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="create-container">
+    {% include 'sidebar.html' with path='create' %}
+    <div class="create">
+        <h1 class="create-name">Add Bakugan to your Inventory</h1>
+
+        {% include 'searchbar.html' with path='create' %}
+
+        <div class="create-grid">
+            {% for bakugan in bakugans %}
+            <div class="create-card" id="bakugan-{{ bakugan.id }}">
+                <h3 class="regular-text">{{ bakugan.name }}</h3>
+                <img class="bakugan-img" src="{{ bakugan.image.url }}" alt="{{ bakugan.name }}" style="width: 200px;">
+                <form action="{% url 'create' %}?return_url={% url 'create' %}%3Fsearch={{ request.GET.search|default:'' }}%26attribute={{ request.GET.attribute|default:'' }}%23bakugan-{{ bakugan.id }}" method="POST">
+                    {% csrf_token %}
+                        <input type="hidden" name="bakugan" value="{{ bakugan.id }}">
+                        <input type="number" name="power" min="260" max="760" step="10" placeholder="G's" required>
+                        <select name="trade_type" required>
+                            <option value="" disabled selected>Sell or Trade</option>
+                            <option value="selling">Sell</option>
+                            <option value="trading">Trade</option>
+                            <option value="both">Both</option>
+                        </select>
+                        <div class="price-container" style="display: none;">
+                            <input class="price-input" type="number" name="price" placeholder="HSP" min="0" max="1000000">
+                        </div>
+                        <button type="submit">Add to Inventory</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/price.js' %}"></script>
+{% endblock %}

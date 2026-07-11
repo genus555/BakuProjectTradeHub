@@ -78,8 +78,8 @@ class OTP_Setup(View):
 
         if totp.verify(code):
             user = User(
-                ign = pending["ign"],
-                discord_name = pending["discord_name"],
+                ign = pending["ign"].lower(),
+                discord_name = pending["discord_name"].lower(),
                 otp_secret = pending["otp_secret"],
             )
             user.register()

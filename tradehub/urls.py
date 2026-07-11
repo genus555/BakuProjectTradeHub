@@ -1,13 +1,15 @@
 from django.urls import path
 from .views.home import Home
+from .views.create import Create
 from .views.login import Login, logout
 from .views.signup import Signup, OTP_Setup
 
 urlpatterns = [
     path('', Home.as_view(), name='homepage'),
+    path('create', Create.as_view(), name='create'),
     path('home', Home.as_view(), name='home'),
-    path('signup', Signup.as_view(), name='signup'),
-    path('otp_setup', OTP_Setup.as_view(), name='otp_setup'),
     path('login', Login.as_view(), name='login'),
     path('logout', logout, name='logout'),
+    path('otp_setup', OTP_Setup.as_view(), name='otp_setup'),
+    path('signup', Signup.as_view(), name='signup'),
 ]
