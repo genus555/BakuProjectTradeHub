@@ -11,10 +11,10 @@ class Home(View):
     def post(self, request):
         user_id = request.session.get('user')
         if not user_id:
-            logger.warning(f"Something went wrong. Non-user entered bakulist. Session User: {user}")
-            redirect('homepage')
+            logger.warning(f"Something went wrong. Non-user entered bakulist. Session User: {user_id}")
+            return redirect('homepage')
         
-        return_url = request.Get.get('return_url')
+        return_url = request.GET.get('return_url')
         if return_url:
             return redirect(return_url)
         return render(request, 'home.html')
@@ -24,25 +24,19 @@ class Home(View):
         if not user_id:
             return render(request, 'home.html')
         user = User.get_user_by_id(user_id)
-        user_bakugans = None
+        user_bakugans = OwnedBakugan.get_owned_bakugans_by_owner(user_id)
         current_attribute = request.GET.get('attribute')
-        search_query = None
+        search_query = request.GET.get('search')
 
         if current_attribute:
-            user_bakugans = OwnedBakugan.get_owned_bakugans_by_attribute(current_attribute)
-        else:
-            user_bakugans = OwnedBakugan.get_owned_bakugans_by_owner(user)
+            user_bakugans = user_bakugans.filter(bakugan__attribute=current_attribute)
         
         if search_query:
-            user_bakugans = user_bakugans.filter(name__icontains=search_query)
+            user_bakugans = user_bakugans.filter(bakugan__name__icontains=search_query)
 
         data = {}
         data['user'] = user
         data['owned_bakugans'] = user_bakugans
         data['attributes'] = Attribute.get_all_attributes()
-
-        print(type(user_bakugans))
-        print(type(user_bakugans[0]))
-        print(user_bakugans[0].__dict__)
 
         return render(request, 'home.html', data)

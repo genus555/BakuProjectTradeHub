@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% url 'home' as search_action %}
+
 {% block content %}
 <div>
     {% if not request.session.user %}
@@ -7,10 +9,10 @@
     <p>Please login or signup to get started. In order to use the website you will need the Google Authenticator app.</p>
     {% else %}
     <div class="inv-container">
-        {% include 'sidebar.html' with path='home' %}
+        {% include 'sidebar.html' with action=search_action %}
         <div class="inventory">
             <h1 class="inv-name">{{ user.ign }}'s Inventory</h1>
-            {% include 'searchbar.html' with path='home' %}
+            {% include 'searchbar.html' with action=search_action %}
             
             <div class="inv-grid">
                 {% for ob in owned_bakugans %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% url 'userinv' owner_id=owner_id as search_action %}
+
+{% block content %}
+<div class="inv-container">
+    {% include 'sidebar.html' with action=search_action %}
+    <div class="inv">
+        <h1 class="inv-name">{{ owner.discord_name }}'s Inventory</h1>
+        {% include 'searchbar.html' with action=search_action %}
+        <div class="inv-grid" id="inventory-grid">
+            {% for ob in owner_bakugans %}
+                {% if not ob.is_offered and ob not in pending_bakugans %}
+                    <div class="inv-card" id="ob.bakugan={{ ob.bakugan.id }}">
+                        <h3 class="inv-text">{{ ob.bakugan.attribute }} {{ ob.bakugan.name }}</h3>
+                        <img class="inv-img" src="{{ ob.bakugan.image.url }}" alt="{{ ob.bakugan.name }}">
+                        <h3 class="inv-text">G: {{ ob.power }}</h3>
+                        <h3 class="inv-text">{{ ob.trade_type }}</h3>
+                        <button type="button" class="offer-btn" data-name="{{ ob.bakugan.name }}" data-id="{{ ob.id }}">Add to Offer</button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="offering-container">
+        <form method="POST">
+            {% csrf_token %}
+            <h2>{{ owner.discord_name }}</h2>
+            <div class="offer-controls">
+                <input type="number" name="offered_price" placeholder="Offer HSP" min="0" value="{% if pending_price and pending_price != 0 %}{{ pending_price }}{% endif %}">
+                <button type="submit">Confirm Offer</button>
+            </div>
+            <div class="offer-grid" id="offer-grid">
+                {% for ob in pending_bakugans %}
+                    <div class="inv-card" id="ob.bakugan={{ ob.bakugan.id }}">
+                        <h3 class="inv-text">{{ ob.bakugan.attribute }} {{ob.bakugan.name }}</h3>
+                        <img class="inv-img" src="{{ ob.bakugan.image.url }}" alt="{{ ob.bakugan.name }}">
+                        <h3 class="inv-text">G: {{ ob.power }}</h3>
+                        <h3 class="inv-text">{{ ob.trade_type }}</h3>
+
+                        <input type="hidden" name="offered_bakugan" value="{{ ob.id }}">
+                        <button type="button" class="offer-btn" data-name="{{ ob.bakugan.name }}" data-id="{{ ob.id }}">Remove from Offer</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </form>
+    </div>
+</div>
+<script src="{% static 'js/offerbox.js' %}"></script>
+{% endblock %}

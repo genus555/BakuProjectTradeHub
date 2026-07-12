@@ -1,12 +1,12 @@
 <aside class="sidebar">
     <ul class="attribute-list">
         <li>
-            <a href="{% url path %}" class="attribute-name">Attributes</a>
+            <a href="{{ action }}?attribute=" class="attribute-name">Attributes</a>
         </li>
 
         {% for attribute in attributes %}
             <li>
-                <a href="{% url path %}?attribute={{ attribute.id }}" class="attribute-item">
+                <a href="{{ action }}?attribute={{ attribute.id }}" class="attribute-item">
                     {% if attribute.image %}
                         <img src="{{ attribute.image.url }}" alt="{{ attribute.name }}" class="attribute-icon">
                     {% endif %}

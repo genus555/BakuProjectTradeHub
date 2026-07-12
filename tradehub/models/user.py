@@ -32,8 +32,8 @@ class User(models.Model):
     def isExists(self):
         return User.objects.filter(ign=self.ign).exists()
     
-    def get_user_inventory():
-        return User.inventory.all()
+    def get_user_inventory(self):
+        return self.inventory.all()
     
     class Meta:
         verbose_name = "User"

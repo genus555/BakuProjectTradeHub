@@ -24,9 +24,11 @@ body {
 nav {
     position: -webkit-sticky;
     position: sticky;
+    box-sizing: border-box;
+    z-index: 1000;
     top: 0;
     padding: 10px;
-    height: fit-content;
+    height: 58px;
     z-index: 1000;
     margin: 0;
     display: flex;
@@ -88,9 +90,9 @@ nav a:hover {
 
 .inv-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 30px;
-    padding: 20px;
+    align-self: start;
 }
 
 .inv-card {
@@ -243,12 +245,13 @@ nav a:hover {
 .sidebar {
     width: fit-content;
     min-width: 180px;
+    z-index: 1;
     padding: 15px;
     position: -webkit-sticky;
     position: sticky;
-    top: 55px;
-    height: calc(100vh - 49px);
-    overflow-y: auto;
+    top: 58px;
+    height: calc(100vh - 58px);
+    box-sizing: border-box;
 
     background-color: goldenrod;
 }
@@ -297,4 +300,117 @@ nav a:hover {
     height: 30px;
     object-fit: contain;
     margin-right: 10px;
+}
+
+
+
+.table {
+    width: 800px;
+    margin: 40px auto;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.table-name {
+    margin: 0;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.user-link {
+    display: block;
+    padding: 12px;
+    border-bottom: 1px solid black;
+    text-decoration: none;
+    color: inherit;
+}
+
+.user-link:hover {
+    background: aqua;
+}
+
+
+
+.offering-container {
+    position: sticky;
+    top: 80px;
+
+    flex-shrink: 0;
+    width: 800px;
+    height: 840px;
+
+    padding: 20px;
+
+    background: #333;
+    border: 2px solid black;
+    border-radius: 12px;
+
+    color: white;
+}
+
+.offering-container h2 {
+    text-align: center;
+}
+
+.offer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+
+    height: calc(100% - 60px);
+    overflow-y: auto;
+
+    align-content: start;
+}
+
+.offer-btn {
+    display: inline-block;
+    padding: 8pb 16px;
+    border: 2px solid rgb(0, 0, 0, 0.6);
+    background: rgb(172, 169, 169);
+    color: black;
+    text-decoration: none;
+    border-radius: 4px;
+
+    width: 100px;
+}
+
+.offer-btn:hover {
+    background: #04567c;
+}
+
+.offer-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.offer-controls input {
+    width: 150px;
+    text-align: center;
+}
+
+.offer-controls button {
+    display: inline-block;
+    padding: 8pb 16px;
+    border: 2px solid rgb(0, 0, 0, 0.6);
+    background: rgb(172, 169, 169);
+    color: black;
+    text-decoration: none;
+    border-radius: 4px;
+
+    width: 100px;
+}
+.offer-controls button:hover {
+    background: #04567c;
 }

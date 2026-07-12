@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% url 'create' as search_action %}
+
 {% block content %}
 <div class="create-container">
-    {% include 'sidebar.html' with path='create' %}
+    {% include 'sidebar.html' with action=search_action %}
     <div class="create">
         <h1 class="create-name">Add Bakugan to your Inventory</h1>
 
-        {% include 'searchbar.html' with path='create' %}
+        {% include 'searchbar.html' with action=search_action %}
 
         <div class="create-grid">
             {% for bakugan in bakugans %}

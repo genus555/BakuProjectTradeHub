@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% url 'seek_users' as search_action %}
+
+{% block content %}
+<div class="table">
+    <div class="table-header">
+        <h1 class="table-name">Brawlers</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="change_filter" value="true">
+            <button type="submit" class="filter-btn">Surf Bakugans</button>
+        </form>
+    </div>
+
+    {% include 'searchbar.html' with action=search_action %}
+
+    {% for user in all_users %}
+        <a href="{% url 'userinv' user.id %}" class="user-link">{{ user.discord_name }}</a>
+    {% endfor %}
+</div>
+{% endblock %}

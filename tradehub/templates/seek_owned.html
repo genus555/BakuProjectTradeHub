@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% url 'seek_owned' as search_action %}
+
+{% block content %}
+<div class="table">
+    <div class="table-header">
+        <h1 class="table-name">Bakugans in Circulation</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="change_filter" value="true">
+            <button type="submit" class="filter-btn">Surf Users</button>
+        </form>
+    </div>
+
+    {% include 'searchbar.html' with action=search_action %}
+
+    {% for ob in all_owned %}
+        <a href="{% url 'userinv' ob.owner.id %}" class="user-link">{{ ob.bakugan.attribute }} {{ ob.bakugan.name }} {{ ob.power }}</a>
+    {% endfor %}
+</div>
+{% endblock %}
