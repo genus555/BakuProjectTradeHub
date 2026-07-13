@@ -16,6 +16,17 @@ class Offer(models.Model):
         self.save()
 
     @staticmethod
+    def init_pending_offer(request):
+        if 'pending_offer' not in request.session:
+            request.session['pending_offer'] = {}
+        request.session['pending_offer'].setdefault('sender_id', None)
+        request.session['pending_offer'].setdefault('receiver_id', None)
+        request.session['pending_offer'].setdefault('sender_price', None)
+        request.session['pending_offer'].setdefault('receiver_price', None)
+        request.session['pending_offer'].setdefault('sender_bakugans', [])
+        request.session['pending_offer'].setdefault('receiver_bakugans', [])
+
+    @staticmethod
     def get_user_offers(user_id, direction):
         if direction == "sending":
             return Offer.objects.filter(sender=user_id).order_by('-date')
@@ -32,6 +43,10 @@ class Offer(models.Model):
                 price += owned_bakugan.price
         return price
     
+    @staticmethod
+    def get_offer_by_id(offer_id):
+        return Offer.objects.get(id=offer_id)
+    
     class Meta:
         verbose_name = "Offer"
         verbose_name_plural = "Offers"
@@ -39,11 +54,21 @@ class Offer(models.Model):
     def __str__(self):
         return f"\"{self.sender.discord_name}\" traded with \"{self.receiver.discord_name}\""
 
-class OfferItems(models.Model):
+class OfferItem(models.Model):
     offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name="items")
-    items = models.ForeignKey(OwnedBakugan, on_delete=models.CASCADE)
+    item = models.ForeignKey(OwnedBakugan, on_delete=models.CASCADE)
     direction = models.CharField(max_length=10, choices=[("giving", "Giving"), ("asking", "Asking")])
+
+    def create_offer_item(self):
+        self.save()
+        
+    @staticmethod
+    def get_offer_items_by_offer_id(offer_id):
+        return OfferItem.objects.filter(offer__id=offer_id)
 
     class Meta:
         verbose_name = "OfferItem"
         verbose_name_plural = "OfferItems"
+
+    def __str__(self):
+        return f"{self.direction} {self.item}"
