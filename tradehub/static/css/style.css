@@ -433,12 +433,20 @@ nav a:hover {
     flex: 0 1 800px;
 }
 
-.trade-menu-controls {
+.trade-menu-controls, .trade-menu-controls form {
     display: flex;
+    flex-wrap: wrap;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+}
+
+.button-separator {
+    flex-basis: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .trade-menu-controls input {
@@ -460,8 +468,4 @@ nav a:hover {
 
 .trade-menu-controls button:hover {
     background: #04567c;
-}
-
-#counter-btn {
-    display: none;
 }

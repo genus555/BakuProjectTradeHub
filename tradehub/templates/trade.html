@@ -39,19 +39,22 @@
     <div class="trade-menu-controls">
         <form method="POST">
             {% csrf_token %}
-            {% if offer_id %}
-            <button id="accept-btn" type="submit" name="action" value="accept">Accept</button>
-            <button id="counter-btn" type="submit" name="counter" value="counter">Counter Offer</button>
+            {% if original_offer_id %}
+            <button {% if not editing %}style="display:none;"{% endif %}id="counter-btn"  type="submit" name="counter" value="counter">Update Offer</button>
+            <button {% if editing %}style="display:none;"{% endif %} id="accept-btn" type="submit" name="action" value="accept">Accept</button>
             <button type="submit" name="action" value="decline">Decline</button>
             {% else %}
-            {% for ob in receiver_bakugans %}
-                <input type="hidden" name="receiver_bakugans" value="{{ ob.id }}">
-            {% endfor %}
-            {% for ob in sender_bakugans %}
-                <input type="hidden" name="sender_bakugans" value="{{ ob.id }}">
-            {% endfor %}
-            <button type="submit" name="create" value="create">Create Offer</button>
+                {% for ob in receiver_bakugans %}
+                    <input type="hidden" name="receiver_bakugans" value="{{ ob.id }}">
+                {% endfor %}
+                {% for ob in sender_bakugans %}
+                    <input type="hidden" name="sender_bakugans" value="{{ ob.id }}">
+                {% endfor %}
+                <button type="submit" name="create" value="create">Create Offer</button>
             {% endif %}
+            <div class="button-separator">
+                <button type="submit" name="clear" value="clear">Clear Trade</button>
+            </div>
         </form>
     </div>
 
@@ -88,6 +91,7 @@
         </form>
     </div>
 </div>
+<div id="edited" data-edited="{{ editing|yesno:'true,false' }}"></div>
 <script src="{% static 'js/trademenu.js' %}"></script>
 <script src="{% static 'js/counter.js' %}"></script>
 {% endblock %}

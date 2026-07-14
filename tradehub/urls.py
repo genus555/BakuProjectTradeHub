@@ -7,6 +7,7 @@ from .views.seek import SeekOwned, SeekUsers
 from .views.signup import Signup, OTP_Setup
 from .views.trade import TradeMenu
 from .views.userinv import UserInv
+from .views.viewoffers import ViewOffers
 
 urlpatterns = [
     path('', Home.as_view(), name='homepage'),
@@ -21,4 +22,5 @@ urlpatterns = [
     path('signup', Signup.as_view(), name='signup'),
     path('trademenu', TradeMenu.as_view(), name='trademenu'),
     path('userinv/<int:owner_id>', UserInv.as_view(), name='userinv'),
+    path('viewoffers', ViewOffers.as_view(), name='viewoffers'),
 ]

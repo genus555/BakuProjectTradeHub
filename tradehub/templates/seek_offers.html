@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% url 'seek_offers' as search_action %}
+
+{% block content %}
+<div class="table">
+    <div class="table-header">
+        {% if direction == "receiving" %}
+            <h1 class="table-name">Received Offers</h1>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="button" id="hide-read-btn" class="filter-btn">Hide Read</button>
+                <input type="hidden" name="change_filter" value="true">
+                <button type="submit" class="filter-btn">My Offers</button>
+            </form>
+        {% elif direction == "sending" %}
+            <h1 class="table-name">My Offers</h1>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="change_filter" value="true">
+                <button type="submit" class="filter-btn">Received Offer</button>
+            </form>
+        {% else %}
+            <h1>Something's gone wrong. Please relog.</h1>
+        {% endif %}
+    </div>
+    
+    {% include 'searchbar.html' with action=search_action %}
+
+    {% for offer in offers %}
+        {% if direction == "receiving" %}
+            <a href="{% url 'trademenu' %}?offer_id={{ offer.id }}" class="user-link" data-read="{{ offer.receiver_read|yesno:'true,false' }}">{{ offer.sender.discord_name }}'s offer</a>
+        {% elif direction == "sending" %}
+            <a href="{% url 'trademenu' %}?offer_id={{ offer.id }}" class="user-link">Offer to {{ offer.receiver.discord_name }}</a>
+        {% else %}
+            <h1>Something's gone wrong. Please relog.</h1>
+        {% endif %}
+    {% endfor %}
+<script src="{% static 'js/hideread.js' %}"></script>
+{% endblock %}

@@ -19,8 +19,9 @@ class UserInv(View):
 
         offer = request.session.get('pending_offer', {})
         if owner_id != uid:
-            offer['sender_id'] = uid
-            offer['receiver_id'] = owner_id
+            if not offer['sender_id'] and not offer['receiver_id']:
+                offer['sender_id'] = uid
+                offer['receiver_id'] = owner_id
             offer['receiver_price'] = price
             offer['receiver_bakugans'] = offered_ids
         elif owner_id == uid:

@@ -9,6 +9,7 @@ class Offer(models.Model):
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_offers")
     sender_price = models.IntegerField(default=0)
     receiver_price = models.IntegerField(default=0)
+    receiver_read = models.BooleanField(default=False)
     date = models.DateField(default=datetime.date.today)
     complete = models.BooleanField(default=False)
 

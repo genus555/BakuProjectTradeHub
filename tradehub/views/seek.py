@@ -86,7 +86,6 @@ class SeekOwned(View):
             digits = []
             attrs = []
             texts = []
-            print(OwnedBakugan.objects.filter(bakugan__attribute__name__iexact="ventus").count())
 
             for param in search_params:
                 if param.isdigit():
