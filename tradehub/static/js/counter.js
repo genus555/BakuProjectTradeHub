@@ -7,10 +7,14 @@ console.log(edited);
 const acceptButton = document.getElementById("accept-btn");
 const counterButton = document.getElementById("counter-btn");
 
-document.querySelectorAll(".offer-btn").forEach(button => {
-    button.addEventListener("click", () => {
+document.addEventListener("click", (event) => {
+
+    if (event.target.classList.contains("offer-btn")) {
+
         showUpdate();
-    });
+
+    }
+    
 });
 
 document.querySelectorAll("input[type='number']").forEach(input => {

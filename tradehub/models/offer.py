@@ -66,6 +66,10 @@ class OfferItem(models.Model):
     @staticmethod
     def get_offer_items_by_offer_id(offer_id):
         return OfferItem.objects.filter(offer__id=offer_id)
+    
+    @staticmethod
+    def get_offer_items_by_owned_bakugan_id(ob_id):
+        return OfferItem.objects.filter(item_id=ob_id)
 
     class Meta:
         verbose_name = "OfferItem"

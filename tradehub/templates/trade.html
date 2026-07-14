@@ -40,9 +40,13 @@
         <form method="POST">
             {% csrf_token %}
             {% if original_offer_id %}
-            <button {% if not editing %}style="display:none;"{% endif %}id="counter-btn"  type="submit" name="counter" value="counter">Update Offer</button>
-            <button {% if editing %}style="display:none;"{% endif %} id="accept-btn" type="submit" name="action" value="accept">Accept</button>
-            <button type="submit" name="action" value="decline">Decline</button>
+                <button {% if not editing %}style="display:none;"{% endif %}id="counter-btn"  type="submit" name="update" value="update">Update Offer</button>
+                {% if my_offer %}
+                    <button type="submit" name="action" value="decline">Delete Offer</button>
+                {% else %}
+                    <button {% if editing %}style="display:none;"{% endif %} id="accept-btn" type="submit" name="action" value="accept">Accept</button>
+                    <button type="submit" name="action" value="decline">Decline</button>
+                {% endif %}
             {% else %}
                 {% for ob in receiver_bakugans %}
                     <input type="hidden" name="receiver_bakugans" value="{{ ob.id }}">
