@@ -79,4 +79,4 @@ class OwnedBakugan(models.Model):
         verbose_name_plural = "OwnedBakugans"
     
     def __str__(self):
-        return f"{self.owner}'s {self.power} {self.bakugan.attribute} {self.bakugan.name}"
+        return f"{self.id} | {self.owner}'s {self.power} {self.bakugan.attribute} {self.bakugan.name}"

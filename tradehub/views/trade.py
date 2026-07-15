@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.views import View
 from tradehub.models.bakugan import OwnedBakugan
@@ -12,7 +13,8 @@ logger = logging.getLogger('django')
 class TradeMenu(View):
     def get(self, request):
         Offer.init_pending_offer(request)
-        offer_id = request.session.get('offer_id')
+        offer_id = request.session.get('offer_id') or request.GET.get("offer_id")
+        request.session['offer_id'] = offer_id
         uid = request.session.get('user')
         sender = None
         receiver = None
@@ -20,21 +22,33 @@ class TradeMenu(View):
         receiver_price = None
         sender_bakugans = []
         receiver_bakugans = []
+        myoffer = None
         request.session.setdefault('editing', False)
 
         if not uid:
             return redirect('homepage')
 
-        if not offer_id:
-            offer_id = request.GET.get("offer_id")
-            request.session['offer_id'] = offer_id
-
         if offer_id:
             try:
                 offer = Offer.get_offer_by_id(offer_id)
-                request.session['original_offer'] = offer_id
+                previous_offer_id = request.session.get('original_offer')
+                original_pending = request.session.get('pending_offer', {})
                 sender = offer.sender.id
                 receiver = offer.receiver.id
+
+                has_previous = (
+                    previous_offer_id == offer_id
+                    and original_pending.get('sender_id') is not None
+                )
+                request.session.setdefault('has_previous', None)
+
+                request.session['original_offer'] = offer_id
+
+                if uid == sender:
+                    myoffer = True
+
+                offered = OfferItem.get_offer_items_by_offer_id(offer_id)
+
                 if uid == sender:
                     pending = {
                         'sender_id': sender,
@@ -44,26 +58,58 @@ class TradeMenu(View):
                         'sender_bakugans': [],
                         'receiver_bakugans': [],
                     }
+                    db_sender = {
+                        item.item_id
+                        for item in offered
+                        if item.direction == "giving"
+                    }
+                    db_receiver = {
+                        item.item_id
+                        for item in offered
+                        if item.direction == "asking"
+                    }
                 else:
                     pending = {
                         'sender_id': receiver,
                         'receiver_id': sender,
-                        'sender_price': offer.sender_price,
-                        'receiver_price': offer.receiver_price,
+                        'sender_price': offer.receiver_price,
+                        'receiver_price': offer.sender_price,
                         'sender_bakugans': [],
                         'receiver_bakugans': [],
                     }
-                offered = OfferItem.get_offer_items_by_offer_id(offer_id)
+                    db_sender = {
+                        item.item_id
+                        for item in offered
+                        if item.direction == "asking"
+                    }
+                    db_receiver = {
+                        item.item_id
+                        for item in offered
+                        if item.direction == "giving"
+                    }
+                
+                if has_previous:
+                    pending_sender = {int(x) for x in original_pending['sender_bakugans']}
+                    pending_receiver = {int(x) for x in original_pending['receiver_bakugans']}
+
+                    unchanged_sender = db_sender & pending_sender
+                    added_sender = pending_sender - db_sender
+
+                    unchanged_receiver = db_receiver & pending_receiver
+                    added_receiver = pending_receiver - db_receiver
+
+                    pending['sender_bakugans'].extend(unchanged_sender)
+                    pending['sender_bakugans'].extend(added_sender)
+                    pending['receiver_bakugans'].extend(unchanged_receiver)
+                    pending['receiver_bakugans'].extend(added_receiver)
+                else:
+                    pending['sender_bakugans'].extend(db_sender)
+                    pending['receiver_bakugans'].extend(db_receiver)
 
                 if receiver == uid and not offer.receiver_read:
                     offer.receiver_read = True
                     offer.save(update_fields=["receiver_read"])
 
-                for oi in offered:
-                    if oi.item.owner.id == offer.sender.id:
-                        pending['sender_bakugans'].append(oi.item.id)
-                    elif oi.item.owner.id == offer.receiver.id:
-                        pending['receiver_bakugans'].append(oi.item.id)
                 request.session['pending_offer'] = pending
                 request.session.modified = True
             except Offer.DoesNotExist:
@@ -76,7 +122,7 @@ class TradeMenu(View):
             check = None
             if original_offer_id:
                 original_offer = Offer.get_offer_by_id(original_offer_id)
-                check = self.check_offers(pending, original_offer)
+                check = self.check_offers(request, pending, original_offer)
                 if check == "edited":
                     request.session['editing'] = True
                 if check == "same":
@@ -106,7 +152,6 @@ class TradeMenu(View):
 
         data = {}
         data['original_offer_id'] = original_offer_id
-        request.session.pop("offer_id", None)
         data['editing'] = request.session['editing']
         data['sender'] = sender
         data['receiver'] = receiver
@@ -114,16 +159,18 @@ class TradeMenu(View):
         data['receiver_price'] = receiver_price
         data['sender_bakugans'] = sender_bakugans
         data['receiver_bakugans'] = receiver_bakugans
-        if uid == sender.id:
-            data['my_offer'] = "yes"
+        data['my_offer'] = myoffer
         
         data['check'] = check
 
         return render(request, 'trade.html', data)
     
     def post(self, request):
+        print("TOP OF POST")
         create = request.POST.get('create')
+        print(request.POST)
         trade_result = request.POST.get('action')
+        print(trade_result)
         edit_trade = request.POST.get('edit-trade')
         clear = request.POST.get('clear')
         update = request.POST.get('update')
@@ -132,6 +179,9 @@ class TradeMenu(View):
         sender_id = pending['sender_id']
         receiver_id = pending['receiver_id']
         existing_offer = None
+        myoffer = request.session.get('myoffer', None)
+        print(f"PENDING: {pending}")
+        print(myoffer)
 
         if not uid:
             return redirect('homepage')
@@ -141,50 +191,90 @@ class TradeMenu(View):
             return redirect('homepage')
         
         if pending:
-            existing_offer = Offer.get_user_offers(sender_id, "sending").filter(receiver_id=receiver_id).first()
-        
+            try:
+                print(request.session['offer_id'])
+                existing_offer = Offer.get_offer_by_id(request.session['offer_id'])
+            except Offer.DoesNotExist:
+                pass
+            print(existing_offer)
+
         if existing_offer:
+            print(f"INSIDE IF STATEMENT")
             if update:
-                if uid == sender_id:
+                print("PROBLEM HERE not updating offer when pressed")
+                if uid == existing_offer.sender_id:
                     sender = User.get_user_by_id(sender_id)
                     receiver = User.get_user_by_id(receiver_id)
-                elif uid == receiver_id:
+                    existing_offer.sender_price = pending['sender_price']
+                    existing_offer.receiver_price = pending['receiver_price']
+                elif uid == existing_offer.receiver_id:
+                    print("I BE DA RECIEVER")
+                    print(request.session['has_previous'])
                     receiver = User.get_user_by_id(sender_id)
                     sender = User.get_user_by_id(receiver_id)
+                    existing_offer.sender_price = pending['receiver_price']
+                    existing_offer.receiver_price = pending['sender_price']
+                    temp_list = pending['sender_bakugans']
+                    pending['sender_bakugans'] = pending['receiver_bakugans']
+                    pending['receiver_bakugans'] = temp_list
+                    temp_user = pending['sender_id']
+                    pending['sender_id'] = pending['receiver_id']
+                    pending['receiver_id'] = temp_user
+                    temp_price = pending['sender_price']
+                    pending['sender_price'] = pending['receiver_price']
+                    pending['receiver_price'] = temp_price
                 existing_offer.sender = sender
                 existing_offer.receiver = receiver
-                existing_offer.sender_price = pending['sender_price']
-                existing_offer.receiver_price = pending['receiver_price']
                 existing_offer.date = datetime.date.today()
                 existing_offer.receiver_read = False
+
+                existing_offer.save()
+                request.session['editing'] = False
+                print(request.session['editing'])
 
                 if pending['sender_bakugans']:
                     for ob_id in pending['sender_bakugans']:
                         ob = OwnedBakugan.get_owned_bakugan_by_id(ob_id)
+                        print(f"SENDER: {ob}")
                         ob.is_offered = True
-                        oi = OfferItem.get_offer_items_by_owned_bakugan_id(ob_id).filter(offer_id=existing_offer.id)
+                        oi = OfferItem.get_offer_items_by_owned_bakugan_id(ob_id).filter(offer_id=existing_offer.id).first()
                         
-                        if not oi:
+                        if oi is None:
+                            print("are we here")
+                            print(oi)
                             new_oi = OfferItem(
                                 offer = existing_offer,
                                 item = ob,
                                 direction = "sending",
                             )
                             new_oi.create_offer_item()
+                        else:
+                            print("BEFORE SET", oi.id, oi.direction)
+                            oi.direction = "giving"
+                            print("AFTER SET:", oi.id, oi.direction)
+                            oi.save()
+                            oi.refresh_from_db
+                            print("AFTER REFRESH:", oi.id, oi.direction)
                 if pending['receiver_bakugans']:
                     for ob_id in pending['receiver_bakugans']:
                         ob = OwnedBakugan.get_owned_bakugan_by_id(ob_id)
-                        oi = OfferItem.get_offer_items_by_owned_bakugan_id(ob_id).filter(offer_id=existing_offer.id)
+                        ob.is_offered = False
+                        oi = OfferItem.get_offer_items_by_owned_bakugan_id(ob_id).filter(offer_id=existing_offer.id).first()
 
-                        if not oi:
-                            new_of = OfferItem(
+                        if oi is None:
+                            new_oi = OfferItem(
                                 offer = existing_offer,
                                 item = ob,
                                 direction = "receiving",
                             )
                             new_oi.create_offer_item()
-
-                existing_offer.save()
+                        else:
+                            print("BEFORE SET", oi.id, oi.direction)
+                            oi.direction = "asking"
+                            print("AFTER SET:", oi.id, oi.direction)
+                            oi.save()
+                            oi.refresh_from_db
+                            print("AFTER REFRESH:", oi.id, oi.direction)
 
                 removed_senders = OfferItem.get_offer_items_by_offer_id(existing_offer.id).filter(item__id__in=pending['sender_bakugans'])
                 removed_senders = removed_senders.exclude(item_id__in=pending['sender_bakugans'])
@@ -200,7 +290,8 @@ class TradeMenu(View):
 
             if trade_result is not None:
                 if trade_result == 'accept':
-                    pass
+                    for ob in pending['sender_bakugans']:
+                        pass
                 elif trade_result == 'decline':
                     removed_senders = OfferItem.get_offer_items_by_offer_id(existing_offer.id).filter(item__id__in=pending['sender_bakugans'])
                     for removed_sender in removed_senders:
@@ -259,9 +350,11 @@ class TradeMenu(View):
         request.session.pop("editing", None)
         return
     
-    def check_offers(self, pending, original_offer):
+    def check_offers(self, request, pending, original_offer):
         if not original_offer:
             return "new trade"
+        
+        uid = request.session.get('user')
         
         sender_price = original_offer.sender_price
         receiver_price = original_offer.receiver_price
@@ -271,11 +364,18 @@ class TradeMenu(View):
         original_sender_bakugans = []
         original_receiver_bakugans = []
         original_bakugans = OfferItem.get_offer_items_by_offer_id(original_offer.id)
-        for oi in original_bakugans:
-            if oi.item.owner.id == original_offer.sender.id:
-                original_sender_bakugans.append(oi.item.id)
-            elif oi.item.owner.id == original_offer.receiver.id:
-                original_receiver_bakugans.append(oi.item.id)
+        if uid == original_offer.sender.id:
+            for oi in original_bakugans:
+                if oi.item.owner.id == original_offer.sender.id:
+                    original_sender_bakugans.append(oi.item.id)
+                elif oi.item.owner.id == original_offer.receiver.id:
+                    original_receiver_bakugans.append(oi.item.id)
+        else:
+            for oi in original_bakugans:
+                if oi.item.owner.id == original_offer.sender.id:
+                    original_receiver_bakugans.append(oi.item.id)
+                elif oi.item.owner.id == original_offer.receiver.id:
+                    original_sender_bakugans.append(oi.item.id)
         if set(original_sender_bakugans) != set(pending['sender_bakugans']) or set(original_receiver_bakugans) != set(pending['receiver_bakugans']):
             return "edited"
         

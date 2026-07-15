@@ -34,6 +34,7 @@ class UserInv(View):
                 offer['sender_id'] = owner_id
 
         request.session['pending_offer'] = offer
+        request.session.modified = True
 
         return redirect('trademenu')
     

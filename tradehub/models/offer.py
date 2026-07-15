@@ -76,4 +76,4 @@ class OfferItem(models.Model):
         verbose_name_plural = "OfferItems"
 
     def __str__(self):
-        return f"{self.direction} {self.item}"
+        return f"{self.direction} {self.item} | {self.id}"
