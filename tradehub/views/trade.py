@@ -12,11 +12,7 @@ logger = logging.getLogger('django')
 
 class TradeMenu(View):
     def get(self, request):
-        print()
-        print("TOP OF GET")
-        print()
         offer_id = request.session.get('offer_id') or request.GET.get("offer_id")
-        print(f"OFFER_ID: {offer_id}")
         request.session['offer_id'] = offer_id
         uid = request.session.get('user')
         sender = None
@@ -42,9 +38,7 @@ class TradeMenu(View):
         if offer_id:
             try:
                 original_pending = request.session.get('pending_offer', {})
-                print(f"ORIGINAL_PENDING: {original_pending}")
                 offer = Offer.get_offer_by_id(offer_id)
-                print(f"ORIGINAL OFFER: {offer}")
                 if not original_pending:
                     Offer.init_pending_offer(request)
                     original_pending = {
@@ -55,7 +49,6 @@ class TradeMenu(View):
                         'sender_bakugans': [],
                         'receiver_bakugans': [],
                     }
-                    print(f"NO ORIGINAL SO NEW POPULATED: {original_pending}")
                 previous_offer_id = request.session.get('original_offer')
                 sender = offer.sender.id
                 receiver = offer.receiver.id
@@ -72,19 +65,8 @@ class TradeMenu(View):
                     myoffer = True
 
                 offered = OfferItem.get_offer_items_by_offer_id(offer_id)
-                print()
-                print('pending:')
-                print(request.session['pending_offer'])
-                print(request.session['pending_offer'] == empty_pending)
-                print(uid == sender)
-                print(request.session['pending_offer'] == empty_pending and uid == sender)
-                print(request.session['pending_offer'] == empty_pending and uid == receiver)
-                print()
 
                 if uid == sender and request.session['pending_offer'] == empty_pending:
-                    print(f"IM TEH SENDER: {sender}")
-                    print(uid == sender)
-                    print(uid == request.session['pending_offer']['sender_id'])
                     pending = {
                         'sender_id': sender,
                         'receiver_id': receiver,
@@ -98,17 +80,12 @@ class TradeMenu(View):
                         for item in offered
                         if item.direction == "giving"
                     }
-                    print(f"DB_SENDER: {db_sender}")
                     db_receiver = {
                         item.item_id
                         for item in offered
                         if item.direction == "asking"
                     }
-                    print(f"DB_RECEIVER: {db_receiver}")
-                    print(f"SENDER PENDING (NOT IN SESSION): {pending}")
                 elif request.session['pending_offer'] == empty_pending and uid == receiver:
-                    print(f"IM THE RECEIVER: {receiver}")
-                    print(uid == receiver)
                     pending = {
                         'sender_id': receiver,
                         'receiver_id': sender,
@@ -122,14 +99,11 @@ class TradeMenu(View):
                         for item in offered
                         if item.direction == "asking"
                     }
-                    print(f"DB_SENDER: {db_sender}")
                     db_receiver = {
                         item.item_id
                         for item in offered
                         if item.direction == "giving"
                     }
-                    print(f"DB_RECEIVER: {db_receiver}")
-                    print(f"RECEIVER PENDING (NOT IN SESSION): {pending}")
                 
                 if has_previous and request.session['pending_offer'] == empty_pending:
                     pending_sender = {int(x) for x in original_pending['sender_bakugans']}
@@ -161,7 +135,6 @@ class TradeMenu(View):
                 return redirect('seek_users')
             
         pending = request.session.get('pending_offer')
-        print(f"PENDING PULL FROM SESSION: {pending}")
         if pending and pending['sender_id'] and pending['receiver_id']:
             original_offer_id = request.session.get('original_offer')
             check = None
@@ -181,8 +154,6 @@ class TradeMenu(View):
             receiver_price = pending['receiver_price']
             sender_bakugans = []
             receiver_bakugans = []
-            print(f"BEFORE GET POPULATES SENDERS {pending['sender_bakugans']}")
-            print(f"BEFORE GET POPULATES receiver {pending['receiver_bakugans']}")
             for ob_id in pending['sender_bakugans']:
                 try:
                     ob = OwnedBakugan.get_owned_bakugan_by_id(ob_id)
@@ -195,20 +166,11 @@ class TradeMenu(View):
                     receiver_bakugans.append(ob)
                 except OwnedBakugan.DoesNotExist:
                     pass
-            print(f"AFTER POPULATING SENDERS {pending['sender_bakugans']}")
-            print(f"AFTER GET POPULATES receiver {pending['receiver_bakugans']}")
         else:
             self.clear_session_offer(request)
             return redirect('seek_users')
 
         data = {}
-        print(f"AT TEH END SENDER: {sender_bakugans} | {sender}")
-        print(f"What if at the end: {request.session['pending_offer']['sender_id']}")
-        print(f"AT TEH END RECEIVER: {receiver_bakugans} | {receiver}")
-        print(f"AND ALSO: {request.session['pending_offer']['receiver_id']}")
-        print()
-        print(request.session['pending_offer'])
-        print()
         data['original_offer_id'] = original_offer_id
         data['editing'] = request.session['editing']
         data['sender'] = sender
@@ -232,6 +194,7 @@ class TradeMenu(View):
         pending = request.session.get('pending_offer')
         uid = request.session.get('user')
         existing_offer = None
+        original_offer = request.session.get('original_offer')
 
         if not uid:
             return redirect('homepage')
@@ -248,17 +211,10 @@ class TradeMenu(View):
 
         if existing_offer:
             if update:
-                print()
-                print("PARAMETERS BEFORE UPDATE")
-                print()
-                print(pending)
                 if pending['sender_price'] is None:
                     pending['sender_price'] = 0
                 if pending['receiver_price'] is None:
                     pending['receiver_price'] = 0
-                print(existing_offer)
-                print(pending)
-                print()
                 sender = User.get_user_by_id(pending['sender_id'])
                 receiver = User.get_user_by_id(pending['receiver_id'])
                 existing_offer.sender = sender
@@ -272,14 +228,11 @@ class TradeMenu(View):
                 request.session['editing'] = False
 
                 if pending['sender_bakugans']:
-                    print(f"THSI IS SENDER'S BAKUGAN: {pending['sender_bakugans']}")
                     for ob_id in pending['sender_bakugans']:
                         ob = OwnedBakugan.get_owned_bakugan_by_id(ob_id)
-                        print(ob)
                         ob.is_offered = True
                         ob.save()
                         oi = OfferItem.get_offer_items_by_owned_bakugan_id(ob_id).filter(offer_id=existing_offer.id).first()
-                        print(oi)
 
                         if oi is None:
                             new_oi = OfferItem(
@@ -288,23 +241,16 @@ class TradeMenu(View):
                                 direction = "giving",
                             )
                             new_oi.create_offer_item()
-                            oi = new_oi
-                            #remove ^ along with print statements
                         else:
                             oi.direction = "giving"
                             oi.save()
                             oi.refresh_from_db
-                        print(f"SENT BAKUGANS DIRECTION: {oi.direction}")
-                        print()
                 if pending['receiver_bakugans']:
-                    print(f"THSI IS RECEIVER'S BAKUGAN: {pending['receiver_bakugans']}")
                     for ob_id in pending['receiver_bakugans']:
                         ob = OwnedBakugan.get_owned_bakugan_by_id(ob_id)
-                        print(ob)
                         ob.is_offered = False
                         ob.save()
                         oi = OfferItem.get_offer_items_by_owned_bakugan_id(ob_id).filter(offer_id=existing_offer.id).first()
-                        print(oi)
 
                         if oi is None:
                             new_oi = OfferItem(
@@ -317,8 +263,6 @@ class TradeMenu(View):
                             oi.direction = "asking"
                             oi.save()
                             oi.refresh_from_db
-                        print(f"RECEIVER BAKUGANS DIRECTION: {oi.direction}")
-                        print()
 
                 removed_senders = OfferItem.get_offer_items_by_offer_id(existing_offer.id).filter(item__id__in=pending['sender_bakugans'])
                 removed_senders = removed_senders.exclude(item_id__in=pending['sender_bakugans'])
@@ -338,11 +282,12 @@ class TradeMenu(View):
                     for ob in pending['sender_bakugans']:
                         pass
                 elif trade_result == 'decline':
-                    removed_senders = OfferItem.get_offer_items_by_offer_id(existing_offer.id).filter(item__id__in=pending['sender_bakugans'])
+                    removed_senders = OfferItem.get_offer_items_by_offer_id(original_offer)
                     for removed_sender in removed_senders:
-                        ob = OwnedBakugan.get_owned_bakugan_by_id(removed_sender.item.id)
-                        ob.is_offered = False
-                        ob.save()
+                        if removed_sender.direction == "giving":
+                            ob = removed_sender.item
+                            ob.is_offered = False
+                            ob.save()
                     existing_offer.delete()
                     self.clear_session_offer(request);
                     return redirect('homepage')

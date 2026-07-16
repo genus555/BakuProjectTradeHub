@@ -356,7 +356,7 @@ nav a:hover {
     color: white;
 }
 
-.offering-container h2 {
+.offering-container h2, .offering-container h3 {
     text-align: center;
 }
 
@@ -432,6 +432,8 @@ nav a:hover {
 .trade-menu > .offering-container {
     flex: 0 1 800px;
 }
+
+.trade-menu > .hsp-text {}
 
 .trade-menu-controls, .trade-menu-controls form {
     display: flex;
