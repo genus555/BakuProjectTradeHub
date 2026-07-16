@@ -22,8 +22,8 @@ class Offer(models.Model):
             request.session['pending_offer'] = {}
         request.session['pending_offer'].setdefault('sender_id', None)
         request.session['pending_offer'].setdefault('receiver_id', None)
-        request.session['pending_offer'].setdefault('sender_price', None)
-        request.session['pending_offer'].setdefault('receiver_price', None)
+        request.session['pending_offer'].setdefault('sender_price', 0)
+        request.session['pending_offer'].setdefault('receiver_price', 0)
         request.session['pending_offer'].setdefault('sender_bakugans', [])
         request.session['pending_offer'].setdefault('receiver_bakugans', [])
 
@@ -53,7 +53,7 @@ class Offer(models.Model):
         verbose_name_plural = "Offers"
     
     def __str__(self):
-        return f"\"{self.sender.discord_name}\" traded with \"{self.receiver.discord_name}\""
+        return f"\"{self.id} | {self.sender.discord_name}\" traded with \"{self.receiver.discord_name}\""
 
 class OfferItem(models.Model):
     offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name="items")

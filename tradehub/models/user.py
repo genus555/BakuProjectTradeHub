@@ -40,4 +40,4 @@ class User(models.Model):
         verbose_name_plural = "Users"
     
     def __str__(self):
-        return f"{self.ign} | {self.discord_name}"
+        return f"[{self.id} | {self.ign} | {self.discord_name}]"
