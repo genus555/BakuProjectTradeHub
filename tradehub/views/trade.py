@@ -1,13 +1,12 @@
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.views import View
 from tradehub.models.bakugan import OwnedBakugan
-from tradehub.models.offer import Offer, OfferItem
+from tradehub.models.offer import CompletedOffer, Offer, OfferItem
 from tradehub.models.user import User
 import datetime
 import logging
-
 logger = logging.getLogger('django')
 
 class TradeMenu(View):
@@ -141,25 +140,10 @@ class TradeMenu(View):
             if original_offer_id:
                 original_offer = Offer.get_offer_by_id(original_offer_id)
                 check = self.check_offers(request, pending, original_offer)
-                print()
-                print(check)
-                print()
                 if check == "edited":
-                    print()
-                    print("its edited")
-                    print(f"before: {request.session['editing']}")
-                    print()
                     request.session['editing'] = True
-                    print(f"after: {request.session['editing']}")
-                    print()
                 elif check == "same":
-                    print()
-                    print("not edited")
-                    print()
-                    print(f"before: {request.session['editing']}")
                     request.session['editing'] = False
-                    print(f"after: {request.session['editing']}")
-                    print()
                 elif check == "new trade":
                     self.clear_session_offer(request)
                     return redirect('seek_users')
@@ -297,8 +281,62 @@ class TradeMenu(View):
 
             if trade_result is not None:
                 if trade_result == 'accept':
-                    for ob in pending['sender_bakugans']:
-                        pass
+                    print()
+                    print(f"I am {request.session.get('user')}")
+                    print(f"THSI IS PENDING: {pending}")
+                    print()
+
+                    offer = Offer.get_offer_by_id(request.session['original_offer'])
+                    sender_discord_name = offer.sender.discord_name
+                    receiver_discord_name = offer.receiver.discord_name
+                    sender_bakugans = []
+                    receiver_bakugans = []
+                    all_involved_bakugans = []
+                    if uid == offer.receiver.id and uid == pending['sender_id']:
+                        try:
+                            with transaction.atomic():
+                                for ob_id in pending['receiver_bakugans']:
+                                    all_involved_bakugans.append(ob_id)
+                                    sender_ob = OwnedBakugan.get_owned_bakugan_by_id(ob_id)
+                                    sender_bakugans.append(f"{sender_ob.owner.discord_name}'s {sender_ob.power} {sender_ob.bakugan.attribute} {sender_ob.bakugan.name}")
+                                    sender_ob.owner = offer.receiver
+                                    sender_ob.is_offered = False
+                                    sender_ob.save()
+                                for ob_id in pending['sender_bakugans']:
+                                    all_involved_bakugans.append(ob_id)
+                                    receiver_ob = OwnedBakugan.get_owned_bakugan_by_id(ob_id)
+                                    receiver_bakugans.append(f"{receiver_ob.owner.discord_name}'s {receiver_ob.power} {receiver_ob.bakugan.attribute} {receiver_ob.bakugan.name}")
+                                    receiver_ob.owner = offer.sender
+                                    receiver_ob.is_offered = False
+                                    receiver_ob.save()
+                                completed_offer = CompletedOffer(
+                                    sender_discord_name = sender_discord_name,
+                                    receiver_discord_name = receiver_discord_name,
+                                    sender_price = pending['receiver_price'],
+                                    receiver_price = pending['sender_price'],
+                                    sender_bakugans = sender_bakugans,
+                                    receiver_bakugans = receiver_bakugans,
+                                )
+                                completed_offer.full_clean()
+                                completed_offer.save()
+
+                                all_tied_offer_ids = []
+                                for ob_id in all_involved_bakugans:
+                                    ois = OfferItem.get_offer_items_by_owned_bakugan_id(ob_id)
+                                    if ois:
+                                        for oi in ois:
+                                            all_tied_offer_ids.append(oi.offer.id)
+                                for offer_id in all_tied_offer_ids:
+                                    Offer.objects.filter(id=offer_id).delete()
+                                self.clear_session_offer(request)
+                        except Exception as e:
+                            logger.warning(f"Something went wrong with changing ownership and making compelted offer. Exception: {e}")
+                            self.clear_session_offer(request)
+                            return redirect('homepage')
+                    else:
+                        logger.warning(f"Something went wrong with accept. UID: {uid} | Offer: {offer} | Session pending: {pending}")
+                        self.clear_session_offer(request)
+                        return redirect('homepage')
                 elif trade_result == 'decline':
                     removed_senders = OfferItem.get_offer_items_by_offer_id(original_offer)
                     for removed_sender in removed_senders:
@@ -307,7 +345,7 @@ class TradeMenu(View):
                             ob.is_offered = False
                             ob.save()
                     existing_offer.delete()
-                    self.clear_session_offer(request);
+                    self.clear_session_offer(request)
                     return redirect('homepage')
                 else:
                     logger.warning(f"Unexpected trade_result: {trade_result}")

@@ -4,6 +4,18 @@ from .bakugan import OwnedBakugan
 from .user import User
 import datetime
 
+class CompletedOffer(models.Model):
+    sender_discord_name = models.CharField(max_length=50, blank=False, null=False)
+    receiver_discord_name = models.CharField(max_length=50, blank=False, null=False)
+    sender_price = models.IntegerField(default=0)
+    receiver_price = models.IntegerField(default=0)
+    sender_bakugans = models.JSONField(default=list)
+    receiver_bakugans = models.JSONField(default=list)
+    date = models.DateField(default=datetime.date.today)
+
+    def __str__(self):
+        return f"\"{self.sender_discord_name}\"'s trade with \"{self.receiver_discord_name}\""
+
 class Offer(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_offers")
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_offers")
@@ -11,7 +23,6 @@ class Offer(models.Model):
     receiver_price = models.IntegerField(default=0)
     receiver_read = models.BooleanField(default=False)
     date = models.DateField(default=datetime.date.today)
-    complete = models.BooleanField(default=False)
 
     def placeOffer(self):
         self.save()
