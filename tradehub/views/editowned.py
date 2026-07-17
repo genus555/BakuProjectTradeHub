@@ -24,8 +24,6 @@ class EditOwned(View):
         owned = OwnedBakugan.get_owned_bakugan_by_id(id=ob_id)
         user = request.session.get('user')
         edited = request.session.pop('edited', None)
-        print(user)
-        print(owned.owner)
         if not user == owned.owner.id:
             logger.warning(f"Non-owner editing bakugan. Owner: \"{owned.owner}\" | Editor: \"{user}\"")
             return redirect('homepage')

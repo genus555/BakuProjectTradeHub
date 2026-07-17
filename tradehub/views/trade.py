@@ -281,11 +281,6 @@ class TradeMenu(View):
 
             if trade_result is not None:
                 if trade_result == 'accept':
-                    print()
-                    print(f"I am {request.session.get('user')}")
-                    print(f"THSI IS PENDING: {pending}")
-                    print()
-
                     offer = Offer.get_offer_by_id(request.session['original_offer'])
                     sender_discord_name = offer.sender.discord_name
                     receiver_discord_name = offer.receiver.discord_name

@@ -17,7 +17,9 @@
                         <img class="inv-img" src="{{ ob.bakugan.image.url }}" alt="{{ ob.bakugan.name }}">
                         <h3 class="inv-text">G: {{ ob.power }}</h3>
                         <h3 class="inv-text">{{ ob.trade_type }}</h3>
-                        <button type="button" class="offer-btn" data-name="{{ ob.bakugan.name }}" data-id="{{ ob.id }}">Add to Offer</button>
+                        {% if not ob.trade_type == "neither" %}
+                            <button type="button" class="offer-btn" data-name="{{ ob.bakugan.name }}" data-id="{{ ob.id }}">Add to Offer</button>
+                        {% endif %}
                     </div>
                 {% endif %}
             {% endfor %}

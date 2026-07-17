@@ -12,3 +12,4 @@ go_logger/warning_logs.txt
 /bakugans
 old_categories.json
 old_products.json
+db.sqlite3

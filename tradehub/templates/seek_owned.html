@@ -16,7 +16,7 @@
     {% include 'searchbar.html' with action=search_action %}
 
     {% for ob in all_owned %}
-        {% if not ob.is_offered %}
+        {% if not ob.is_offered and not ob.trade_type == "neither" %}
             <a href="{% url 'userinv' ob.owner.id %}" class="user-link">{{ ob.bakugan.attribute }} {{ ob.bakugan.name }} {{ ob.power }}</a>
         {% endif %}
     {% endfor %}

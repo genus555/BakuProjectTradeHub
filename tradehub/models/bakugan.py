@@ -35,7 +35,7 @@ class OwnedBakugan(models.Model):
     power = models.IntegerField(default=320)
     price = models.IntegerField(default=0)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="inventory")
-    trade_type = models.CharField(max_length=10, choices=[("trading", "Trading"), ("selling", "Selling"), ("both", "Both")])
+    trade_type = models.CharField(max_length=10, choices=[("trading", "Trading"), ("selling", "Selling"), ("both", "Both"), ("neither", "Neither")])
     is_offered = models.BooleanField(default=False)
 
     def create(self):
