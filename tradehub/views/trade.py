@@ -141,13 +141,31 @@ class TradeMenu(View):
             if original_offer_id:
                 original_offer = Offer.get_offer_by_id(original_offer_id)
                 check = self.check_offers(request, pending, original_offer)
+                print()
+                print(check)
+                print()
                 if check == "edited":
+                    print()
+                    print("its edited")
+                    print(f"before: {request.session['editing']}")
+                    print()
                     request.session['editing'] = True
-                if check == "same":
+                    print(f"after: {request.session['editing']}")
+                    print()
+                elif check == "same":
+                    print()
+                    print("not edited")
+                    print()
+                    print(f"before: {request.session['editing']}")
                     request.session['editing'] = False
-                if check == "new trade":
+                    print(f"after: {request.session['editing']}")
+                    print()
+                elif check == "new trade":
                     self.clear_session_offer(request)
                     return redirect('seek_users')
+                else:
+                    logger.warning(f"something went wrong with check: {check}")
+                    return redirect('homepage')
             sender = User.get_user_by_id(pending['sender_id'])
             receiver = User.get_user_by_id(pending['receiver_id'])
             sender_price = pending['sender_price']
@@ -347,13 +365,19 @@ class TradeMenu(View):
         uid = request.session.get('user')
         
         sender_price = original_offer.sender_price
-        receiver_price = original_offer.receiver_price
-        if sender_price != pending['sender_price'] or receiver_price != pending['receiver_price']:
-            return "edited"
-        
+        receiver_price = original_offer.receiver_price        
         original_sender_bakugans = []
         original_receiver_bakugans = []
         original_bakugans = OfferItem.get_offer_items_by_offer_id(original_offer.id)
+        check_offer = {
+                        'sender_id': None,
+                        'receiver_id': None,
+                        'sender_price': 0,
+                        'receiver_price': 0,
+                        'sender_bakugans': [],
+                        'receiver_bakugans': [],
+                    }
+
         if uid == original_offer.sender.id:
             for oi in original_bakugans:
                 if oi.item.owner.id == original_offer.sender.id:
@@ -366,7 +390,24 @@ class TradeMenu(View):
                     original_receiver_bakugans.append(oi.item.id)
                 elif oi.item.owner.id == original_offer.receiver.id:
                     original_sender_bakugans.append(oi.item.id)
-        if set(original_sender_bakugans) != set(pending['sender_bakugans']) or set(original_receiver_bakugans) != set(pending['receiver_bakugans']):
+
+        if uid == original_offer.sender_id:
+            check_offer['sender_id'] = pending['sender_id']
+            check_offer['receiver_id'] = pending['receiver_id']
+            check_offer['sender_price'] = pending['sender_price']
+            check_offer['receiver_price'] = pending['receiver_price']
+        elif uid == original_offer.receiver_id:
+            check_offer['sender_id'] = pending['receiver_id']
+            check_offer['receiver_id'] = pending['sender_id']
+            check_offer['sender_price'] = pending['receiver_price']
+            check_offer['receiver_price'] = pending['sender_price']
+
+        check_offer['sender_bakugans'] = pending['sender_bakugans']
+        check_offer['receiver_bakugans'] = pending['receiver_bakugans']
+        
+        if sender_price != check_offer['sender_price'] or receiver_price != check_offer['receiver_price']:
+            return "edited"
+        if set(original_sender_bakugans) != set(check_offer['sender_bakugans']) or set(original_receiver_bakugans) != set(check_offer['receiver_bakugans']):
             return "edited"
         
         return "same"

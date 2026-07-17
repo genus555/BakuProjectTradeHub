@@ -28,7 +28,7 @@
         <form method="POST">
             {% csrf_token %}
             {% if original_offer_id %}
-                <button {% if not editing %}style="display:none;"{% endif %}id="counter-btn"  type="submit" name="update" value="update">Update Offer</button>
+                <button {% if not editing %}style="display:none;"{% endif %}id="counter-btn"  type="submit" name="update" value="update">Send Counter</button>
                 {% if my_offer %}
                     <button type="submit" name="action" value="decline">Delete Offer</button>
                 {% else %}
