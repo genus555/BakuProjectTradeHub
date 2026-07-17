@@ -8,7 +8,6 @@ tradehub/views/__pycache__
 TODO
 go_logger/go_all_logs.txt
 go_logger/warning_logs.txt
-db.sqlite3
 /attributes
 /bakugans
 old_categories.json
