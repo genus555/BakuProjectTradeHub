@@ -29,6 +29,8 @@ nav {
     top: 0;
     padding: 10px;
     height: 58px;
+    width: max(100%, 800px);
+    min-width: 800px;
     z-index: 1000;
     margin: 0;
     display: flex;
@@ -74,13 +76,13 @@ nav a:hover {
 
 
 .inv {
-    flex: 1;
-    min-width: 0;
+    flex: 0 0 800px;
 }
 
 .inv-container {
     display: flex;
     align-items: flex-start;
+    width: 100%;
     gap: 20px;
 }
 
@@ -91,6 +93,13 @@ nav a:hover {
 .inv-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    align-self: start;
+}
+
+.home .inv-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
     gap: 30px;
     align-self: start;
 }
@@ -305,6 +314,7 @@ nav a:hover {
 
 
 .table {
+    min-width: 800px;
     width: 800px;
     margin: 40px auto;
 }
@@ -343,9 +353,9 @@ nav a:hover {
     position: sticky;
     top: 80px;
 
-    flex-shrink: 0;
-    width: 800px;
-    height: 840px;
+    flex: 0 0 800px;
+    box-sizing: border-box;
+    min-height: 840px;
 
     padding: 20px;
 
@@ -432,8 +442,6 @@ nav a:hover {
 .trade-menu > .offering-container {
     flex: 0 1 800px;
 }
-
-.trade-menu > .hsp-text {}
 
 .trade-menu-controls, .trade-menu-controls form {
     display: flex;

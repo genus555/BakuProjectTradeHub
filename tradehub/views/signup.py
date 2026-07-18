@@ -16,7 +16,9 @@ class Signup(View):
     
     def post(self, request):
         ign = request.POST.get('ign')
+        ign = ign.replace(" ", "")
         discord_name = request.POST.get('discord_name')
+        discord_name = discord_name.replace(" ", "")
         otp_secret = pyotp.random_base32()
 
         user = User(

@@ -12,7 +12,9 @@ class Login(View):
     
     def post(self, request):
         discord_name = request.POST.get('discord_name').lower()
+        discord_name = discord_name.replace(" ", "")
         otp_code = request.POST.get('otp_code')
+        otp_code = otp_code.replace(" ", "")
         user = User.get_user_by_discord_name(discord_name)
         error_message = None
         if user:

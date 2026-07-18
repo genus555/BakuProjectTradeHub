@@ -3,7 +3,7 @@
 {% url 'home' as search_action %}
 
 {% block content %}
-<div>
+<div class="home">
     {% if not request.session.user %}
     <h1>BakuProject Trade Hub</h1>
     <p>Please login or signup to get started. In order to use the website you will need the Google Authenticator app.</p>

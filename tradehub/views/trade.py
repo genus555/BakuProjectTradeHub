@@ -138,7 +138,12 @@ class TradeMenu(View):
             original_offer_id = request.session.get('original_offer')
             check = None
             if original_offer_id:
-                original_offer = Offer.get_offer_by_id(original_offer_id)
+                try:
+                    original_offer = Offer.get_offer_by_id(original_offer_id)
+                except Exception:
+                    logger.exception(f"Failed to get original_offer from offer_id: {original_offer_id}")
+                    self.clear_session_offer(request)
+                    return redirect('homepage')
                 check = self.check_offers(request, pending, original_offer)
                 if check == "edited":
                     request.session['editing'] = True
